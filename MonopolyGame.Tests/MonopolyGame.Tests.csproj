@@ -9,8 +9,8 @@
     <ProjectGuid>{8EDF4429-251A-416D-BB68-93F227191BCF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Monopoly</RootNamespace>
-    <AssemblyName>Monopoly</AssemblyName>
+    <RootNamespace>MonopolyGame</RootNamespace>
+    <AssemblyName>MonopolyGame.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -40,11 +40,16 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Monopoly.cs" />
-    <Compile Include="TestClass.cs" />
+    <Compile Include="MonopolyTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonopolyGame\MonopolyGame.csproj">
+      <Project>{849de761-96aa-4b25-bf77-de72f47c053d}</Project>
+      <Name>MonopolyGame</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
