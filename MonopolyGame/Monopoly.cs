@@ -6,18 +6,19 @@ namespace MonopolyGame
 {
     public class Monopoly
     {
-        private List<Player> _players;
+        private const int DefaultPlayerPoints = 6000;
 
-        private readonly List<Field> _fields = new List<Field>
+        private Dictionary<string, int> _players;
+
+        private readonly Dictionary<Field, string> _fields = new Dictionary<Field, string>
         {
-            new Field("Ford", new AutoType()),
-            new Field("MCDonald", new FoodType()),
-            new Field("Lamoda", new ClothesType()),
-            new Field("Air Baltic", new TravelType()),
-            new Field("Nordavia", new TravelType()),
-            new Field("Prison", new PrisonType()),
-            new Field("MCDonald", new FoodType()),
-            new Field("TESLA", new AutoType())
+            { new Field("Ford", new AutoType()), null },
+            { new Field("MCDonald", new FoodType()), null },
+            { new Field("Lamoda", new ClothesType()), null },
+            { new Field("Air Baltic", new TravelType()), null },
+            { new Field("Nordavia", new TravelType()), null },
+            { new Field("Prison", new PrisonType()), null },
+            { new Field("TESLA", new AutoType()), null }
         };
 
         public Monopoly(IEnumerable<string> playerNames)
@@ -27,62 +28,78 @@ namespace MonopolyGame
 
         private void InitPlayers(IEnumerable<string> playerNames)
         {
-            _players = new List<Player>();
+            _players = new Dictionary<string, int>();
 
             foreach (string playerName in playerNames)
             {
-                _players.Add(new Player(playerName));
+                _players.Add(playerName, DefaultPlayerPoints);
             }
         }
 
-        public IEnumerable<Player> GetPlayers()
+        public IEnumerable<string> GetPlayers()
         {
-            return _players;
+            return _players.Keys;
         }
 
-        public Player GetPlayerByName(string name)
+        public int GetPlayerPointsByName(string playerName)
         {
-            return _players.FirstOrDefault(player => player.Name == name);
+            return _players[playerName];
         }
 
         public IEnumerable<Field> GetFields()
         {
-            return _fields;
+            return _fields.Keys;
         }
 
-        public Field GetFieldByName(string name)
+        public string GetFieldOwnerByName(string fieldName)
         {
-            return _fields.FirstOrDefault(field => field.Name == name);
+            return _fields[GetFieldByName(fieldName)];
         }
 
-        public void Buy(Player player, Field field)
+        public Field GetFieldByName(string fieldName)
         {
-            if (player == null)
-                throw new ArgumentNullException(nameof(player));
+            var field = _fields.Keys.FirstOrDefault(x => x.Name == fieldName);
 
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
 
-            player.Points -= field.MonopolyType.BuyPoints;
-
-            field.Owner = player;
+            return field;
         }
 
-        public void Rent(Player player, Field field)
+        public void Buy(string playerName, string fieldName)
         {
-            if (player == null)
-                throw new ArgumentNullException(nameof(player));
+            if (string.IsNullOrWhiteSpace(playerName))
+                throw new ArgumentNullException(nameof(playerName));
 
-            if (field == null)
-                throw new ArgumentNullException(nameof(field));
+            if (string.IsNullOrWhiteSpace(fieldName))
+                throw new ArgumentNullException(nameof(fieldName));
 
-            var owner = field.Owner;
+            Field field = GetFieldByName(fieldName);
+
+            int playerPoints = GetPlayerPointsByName(playerName);
+
+            _players[playerName] = playerPoints - field.MonopolyType.BuyPoints;
+
+            _fields[field] = playerName;
+        }
+
+        public void Rent(string playerName, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(playerName))
+                throw new ArgumentNullException(nameof(playerName));
+
+            if (string.IsNullOrWhiteSpace(fieldName))
+                throw new ArgumentNullException(nameof(fieldName));
+
+            Field field = GetFieldByName(fieldName);
+
+            var owner = _fields[field];
 
             if (owner != null)
             {
-                owner.Points += field.MonopolyType.RentPoints;
+                _players[owner] += field.MonopolyType.RentPoints;
 
-                player.Points -= field.MonopolyType.RentPoints;
+                _players[playerName] -= field.MonopolyType.RentPoints;
             }
         }
     }

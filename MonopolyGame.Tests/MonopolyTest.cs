@@ -14,24 +14,21 @@ namespace MonopolyGame
         [Test]
         public void Should_ReturnCorrectPlayers_When_InitGame()
         {
-            IEnumerable<string> playerNames = new string[] { "Peter", "Ekaterina", "Alexander" };
-            var monopoly = new Monopoly(playerNames);
+            IEnumerable<string> expectedPlayers = new string[] { "Peter", "Ekaterina", "Alexander" };
 
-            IEnumerable<Player> actualPlayers = monopoly.GetPlayers();
+            var monopoly = new Monopoly(expectedPlayers);
 
-            Assert.AreEqual(playerNames.Count(), actualPlayers.Count());
-            //
-            foreach (var playerName in playerNames)
-            {
-                Assert.IsTrue(actualPlayers.Any(x => x.Name == playerName));
-            }
+            IEnumerable<string> actualPlayers = monopoly.GetPlayers();
+
+            Assert.IsFalse(actualPlayers.Except(expectedPlayers).Any());
 
         }
+
         [Test]
         public void Should_ReturnCorrectFields_When_InitGame()
         {
-            IEnumerable<string> playerNames = new string[] { "Peter", "Ekaterina", "Alexander" };
-            var monopoly = new Monopoly(playerNames);
+            IEnumerable<string> players = new string[] { "Peter", "Ekaterina", "Alexander" };
+            var monopoly = new Monopoly(players);
 
             var expectedFields = new List<Field>
             {
@@ -41,37 +38,32 @@ namespace MonopolyGame
                 new Field("Air Baltic", new TravelType()),
                 new Field("Nordavia", new TravelType()),
                 new Field("Prison", new PrisonType()),
-                new Field("MCDonald", new FoodType()),
                 new Field("TESLA", new AutoType())
             };
 
             IEnumerable<Field> actualFields = monopoly.GetFields();
 
-            Assert.AreEqual(expectedFields.Count(), actualFields.Count());
-
-            foreach (var actualField in actualFields)
-            {
-                Assert.IsTrue(expectedFields.Any(x => x.Name == actualField.Name));
-            }
+            Assert.IsFalse(actualFields.Except(expectedFields).Any());
         }
 
         [Test]
         public void Should_BeOwner_When_BuyField()
         {
-            IEnumerable<string> playerNames = new string[] { "Peter", "Ekaterina", "Alexander" };
-            var monopoly = new Monopoly(playerNames);
+            IEnumerable<string> players = new string[] { "Peter", "Ekaterina", "Alexander" };
+            var monopoly = new Monopoly(players);
 
-            Field ford = monopoly.GetFieldByName("Ford");
-            Player peter = monopoly.GetPlayerByName("Peter");
+            string peter = "Peter";
+            string ford = "Ford";
+
             monopoly.Buy(peter, ford);
 
-            int actualPeterPoints = peter.Points;
+            int actualPeterPoints = monopoly.GetPlayerPointsByName(peter);
             int expectedPeterPoints = 5500;
 
             Assert.AreEqual(actualPeterPoints, expectedPeterPoints);
 
-            string actualOwnerName = ford.Owner.Name;
-            string expectedOwnerName = peter.Name;
+            string actualOwnerName = monopoly.GetFieldOwnerByName(ford);
+            string expectedOwnerName = peter;
 
             Assert.AreEqual(actualOwnerName, expectedOwnerName);
         }
@@ -82,18 +74,21 @@ namespace MonopolyGame
             IEnumerable<string> playerNames = new string[] { "Peter", "Ekaterina", "Alexander" };
             var monopoly = new Monopoly(playerNames);
 
-            Field ford = monopoly.GetFieldByName("Ford");
-            Player peter = monopoly.GetPlayerByName("Peter");
+            string peter = "Peter";
+            string ford = "Ford";
+
             monopoly.Buy(peter, ford);
-            Player ekaterina = monopoly.GetPlayerByName("Ekaterina");
+
+            string ekaterina = "Ekaterina";
+
             monopoly.Rent(ekaterina, ford);
 
-            int actualPeterPoints = peter.Points;
+            int actualPeterPoints = monopoly.GetPlayerPointsByName(peter);
             int expectedPeterPoints = 5750;
 
             Assert.AreEqual(actualPeterPoints, expectedPeterPoints);
 
-            int actualEkaterinaPoints = ekaterina.Points;
+            int actualEkaterinaPoints = monopoly.GetPlayerPointsByName(ekaterina);
             int expectedEkaterinaPoints = 5750;
 
             Assert.AreEqual(actualEkaterinaPoints, expectedEkaterinaPoints);
